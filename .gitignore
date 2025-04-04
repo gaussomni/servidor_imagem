@@ -1,0 +1,89 @@
+# Dependências e pacotes
+node_modules/
+bower_components/
+vendor/
+.yarn/
+package-lock.json
+yarn.lock
+
+# Arquivos compilados
+/dist/
+/build/
+/out/
+*.class
+*.jar
+*.war
+*.ear
+*.pyc
+__pycache__/
+*.so
+*.dll
+*.exe
+
+# Arquivos de log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.swp
+
+# Arquivos de ambiente e configuração local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env.*
+!.env.example
+.secret
+config.json
+
+# Arquivos de cache
+.sass-cache/
+.cache/
+.pytest_cache/
+.eslintcache
+.parcel-cache/
+
+# IDEs e editores
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+.DS_Store
+.history/
+*.iml
+*.ipr
+*.iws
+
+# Arquivos específicos de sistema operacional
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Arquivos temporários
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# Diretórios de cobertura de código
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+.tox/
+
+# Documentação
+/docs/build/
