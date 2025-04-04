@@ -49,5 +49,5 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor
 app.listen(port, () => {
-  console.log(`Servidor rodando em https://servidor-imagem-topaz.vercel.app/:${port}`);
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });

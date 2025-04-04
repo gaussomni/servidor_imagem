@@ -83,7 +83,7 @@ app.use((err, req, res, next) => {
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3010;
   app.listen(PORT, () => {
-    console.log(`Servidor rodando em https://servidor-imagem-topaz.vercel.app/:${PORT}`);
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
   });
 }
 
