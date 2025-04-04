@@ -14,6 +14,6 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "DEBUG": "true"
+    "VERCEL": "1"
   }
 } 

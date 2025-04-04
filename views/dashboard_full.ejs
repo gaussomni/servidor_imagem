@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <h1><i class="fas fa-images"></i> Gerenciador de Imagens</h1>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumb">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </div>
+
+    <!-- Alertas -->
+    <div id="alert-container"></div>
+
+    <!-- Criar Pasta -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-folder-plus"></i> Criar Nova Pasta</h2>
+      </div>
+      <form action="/pasta" method="POST" id="criar-pasta-form">
+        <input type="hidden" name="caminhoAtual" value="<%= caminhoAtual %>">
+        <div class="form-group">
+          <input type="text" name="nomePasta" placeholder="Nome da pasta" required>
+          <button type="submit" class="primary">Criar Pasta</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Listar Pastas -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-folder"></i> Minhas Pastas</h2>
+      </div>
+      <div class="folders-container">
+        <% if (pastas && pastas.length > 0) { %>
+          <% pastas.forEach(pasta => { %>
+            <div class="folder-item">
+              <a href="/browse?path=<%= encodeURIComponent(pasta) %>" class="folder-link">
+                <div class="folder-icon">
+                  <i class="fas fa-folder fa-3x"></i>
+                </div>
+                <div class="folder-name"><%= pasta %></div>
+              </a>
+              <div class="folder-actions">
+                <form action="/pasta?_method=DELETE" method="POST">
+                  <input type="hidden" name="caminhoAtual" value="<%= caminhoAtual %>">
+                  <input type="hidden" name="pasta" value="<%= pasta %>">
+                  <button type="button" class="delete-pasta-btn danger"><i class="fas fa-trash"></i></button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p class="empty-state">Nenhuma pasta encontrada. Crie sua primeira pasta acima.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmação para excluir pasta -->
+  <div id="confirmar-exclusao-modal" class="modal">
+    <div class="modal-content">
+      <h2><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h2>
+      <p>Tem certeza que deseja excluir esta pasta e todo seu conteúdo?</p>
+      <p>Esta ação não pode ser desfeita.</p>
+      <div class="modal-actions">
+        <button id="confirmar-exclusao-btn" class="danger">Excluir</button>
+        <button onclick="fecharModal()" class="secondary">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Exibir alertas
+    function mostrarAlerta(mensagem, tipo = 'success') {
+      const alertContainer = document.getElementById('alert-container');
+      const alert = document.createElement('div');
+      alert.className = `alert ${tipo}`;
+      alert.innerHTML = mensagem;
+      
+      alertContainer.appendChild(alert);
+      
+      // Auto-remover alerta após 5 segundos
+      setTimeout(() => {
+        alert.style.opacity = '0';
+        setTimeout(() => {
+          alertContainer.removeChild(alert);
+        }, 300);
+      }, 5000);
+    }
+    
+    // Confirmar exclusão de pasta
+    let formAtual = null;
+    
+    document.querySelectorAll('.delete-pasta-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        formAtual = this.closest('form');
+        document.getElementById('confirmar-exclusao-modal').style.display = 'block';
+      });
+    });
+    
+    document.getElementById('confirmar-exclusao-btn').addEventListener('click', function() {
+      if (formAtual) {
+        formAtual.submit();
+      }
+      fecharModal();
+    });
+    
+    function fecharModal() {
+      document.getElementById('confirmar-exclusao-modal').style.display = 'none';
+    }
+    
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+      const modal = document.getElementById('confirmar-exclusao-modal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html> 

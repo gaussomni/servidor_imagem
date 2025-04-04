@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pasta: <%= pasta %> | Gerenciador de Imagens</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <h1><i class="fas fa-images"></i> Gerenciador de Imagens</h1>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumb">
+      <a href="/"><i class="fas fa-home"></i> Home</a>
+      <% if (breadcrumbs.length > 0) { %>
+        <% breadcrumbs.forEach((crumb, index) => { %>
+          <i class="fas fa-chevron-right"></i>
+          <a href="/browse?path=<%= encodeURIComponent(crumb.caminho) %>"><%= crumb.nome %></a>
+        <% }); %>
+      <% } %>
+    </div>
+    
+    <!-- Alertas -->
+    <div id="alert-container"></div>
+    
+    <div class="flex justify-between items-center mb-4">
+      <h1><i class="fas fa-folder-open"></i> <%= pasta %></h1>
+      <a href="/" class="tooltip">
+        <button class="secondary"><i class="fas fa-arrow-left"></i> Voltar</button>
+        <span class="tooltip-text">Voltar ao início</span>
+      </a>
+    </div>
+
+    <!-- Criar Subpasta -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-folder-plus"></i> Criar Subpasta</h2>
+      </div>
+      <form action="/pasta" method="POST">
+        <input type="hidden" name="caminhoAtual" value="<%= caminhoAtual %>">
+        <div class="form-group">
+          <input type="text" name="nomePasta" placeholder="Nome da subpasta" required>
+          <button type="submit" class="primary">Criar Subpasta</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Upload de imagem -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-upload"></i> Upload de Imagem</h2>
+      </div>
+      <form action="/upload" method="POST" enctype="multipart/form-data" id="upload-form">
+        <input type="hidden" name="caminhoAtual" value="<%= caminhoAtual %>">
+        <div class="form-group">
+          <input type="file" name="imagens" accept="image/*" multiple required>
+          <button type="submit" class="primary" id="upload-btn">Enviar Imagens</button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Preview de Upload -->
+    <div id="upload-preview" style="display: none;" class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-eye"></i> Preview</h2>
+      </div>
+      <div id="preview-container" class="folders-container"></div>
+    </div>
+
+    <!-- Listar Subpastas -->
+    <% if (pastas && pastas.length > 0) { %>
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fas fa-folder"></i> Subpastas</h2>
+        </div>
+        <div class="folders-container">
+          <% pastas.forEach(pasta => { %>
+            <div class="folder-item">
+              <a href="/browse?path=<%= encodeURIComponent(caminhoAtual ? caminhoAtual + '/' + pasta : pasta) %>" class="folder-link">
+                <div class="folder-icon">
+                  <i class="fas fa-folder fa-3x"></i>
+                </div>
+                <div class="folder-name"><%= pasta %></div>
+              </a>
+              <div class="folder-actions">
+                <form action="/pasta?_method=DELETE" method="POST">
+                  <input type="hidden" name="caminhoAtual" value="<%= caminhoAtual %>">
+                  <input type="hidden" name="pasta" value="<%= pasta %>">
+                  <button type="button" class="delete-pasta-btn danger"><i class="fas fa-trash"></i></button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Listar Imagens -->
+    <% if (arquivos && arquivos.length > 0) { %>
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fas fa-images"></i> Imagens</h2>
+        </div>
+        <div class="image-container">
+          <% arquivos.forEach(arquivo => { %>
+            <div class="image-item">
+              <div class="image-preview">
+                <img 
+                  src="/storage/<%= caminhoAtual ? caminhoAtual + '/' + arquivo : arquivo %>"
+                  alt="<%= arquivo %>"
+                >
+              </div>
+              <div class="image-name"><%= arquivo %></div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <script>
+    // Exibir alertas
+    function mostrarAlerta(mensagem, tipo = 'success') {
+      const alertContainer = document.getElementById('alert-container');
+      const alert = document.createElement('div');
+      alert.className = `alert ${tipo}`;
+      alert.innerHTML = mensagem;
+      
+      alertContainer.appendChild(alert);
+      
+      // Auto-remover alerta após 5 segundos
+      setTimeout(() => {
+        alert.style.opacity = '0';
+        setTimeout(() => {
+          alertContainer.removeChild(alert);
+        }, 300);
+      }, 5000);
+    }
+    
+    // Confirmar exclusão de pasta
+    let formAtual = null;
+    
+    document.querySelectorAll('.delete-pasta-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        formAtual = this.closest('form');
+        document.getElementById('confirmar-exclusao-modal').style.display = 'block';
+      });
+    });
+    
+    document.getElementById('confirmar-exclusao-btn').addEventListener('click', function() {
+      if (formAtual) {
+        formAtual.submit();
+      }
+      fecharModal();
+    });
+    
+    function fecharModal() {
+      document.getElementById('confirmar-exclusao-modal').style.display = 'none';
+    }
+    
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+      const modal = document.getElementById('confirmar-exclusao-modal');
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html> 
