@@ -26,9 +26,37 @@ fs.ensureDirSync(STORAGE_DIR);
 const dashboardRoutes = require('../routes/dashboard');
 app.use('/', dashboardRoutes);
 
+// Rota básica para testes
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'Servidor de imagens está funcionando'
+  });
+});
+
+// Rota para verificar ambiente
+app.get('/info', (req, res) => {
+  res.json({
+    environment: process.env.NODE_ENV || 'development',
+    vercel: process.env.VERCEL || false,
+    tempDir: process.env.VERCEL ? '/tmp' : 'storage',
+    currentDir: __dirname
+  });
+});
+
 // Tratamento de erros 404
 app.use((req, res) => {
-  res.status(404).send('Página não encontrada');
+  res.status(404).json({ error: 'Rota não encontrada' });
+});
+
+// Tratamento global de erros
+app.use((err, req, res, next) => {
+  console.error('Erro na aplicação:', err);
+  res.status(500).json({ 
+    error: 'Erro interno do servidor',
+    message: err.message,
+    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+  });
 });
 
 // Iniciar servidor apenas em ambiente de desenvolvimento
